@@ -297,6 +297,35 @@ ggplot(d) +
   <!-- Presenter Notes -->
 </slide>
 
+<slide class="" id="slide-13" style="background:;">
+  <hgroup>
+    <h2>Testing for equal variance between groups</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Levene&#39;s test</li>
+<li>In the car package</li>
+</ul>
+
+<pre><code class="r">d = data.frame(x=rep(c(&quot;A&quot;,&quot;B&quot;),
+                     each=1000),
+               y=c(rnorm(1000,sd=.25),
+                   rnorm(1000,sd=5)))
+leveneTest(y~x,d)
+</code></pre>
+
+<pre><code>## Levene&#39;s Test for Homogeneity of Variance (center = median)
+##         Df F value    Pr(&gt;F)    
+## group    1  1531.3 &lt; 2.2e-16 ***
+##       1998                      
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+</code></pre>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
     <slide class="backdrop"></slide>
   </slides>
   <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
@@ -371,6 +400,12 @@ ggplot(d) +
       <a href="#" target="_self" rel='tooltip' 
         data-slide=12 title='Deviance: measuring the goodness of fit of a GLM'>
          12
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=13 title='Testing for equal variance between groups'>
+         13
       </a>
     </li>
   </ul>

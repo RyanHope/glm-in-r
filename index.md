@@ -169,3 +169,30 @@ $$\eta=g(\mu)$$
 - Deviance is defined as -2 times the difference in log-likelyhood between the current model and a saturdated model (i.e. a model that fits the data perfectly)
 - Deviance is estimated in different ways for different families within glm
 - Where there is grouping structure in the data leading to spatial or temporal pseudoreplication, you will need to use generalized mixed models (lmer) with the appropriate error family
+
+---
+
+## Testing for equal variance between groups
+
+
+
+- Levene's test
+- In the car package
+
+
+```r
+d = data.frame(x=rep(c("A","B"),
+                     each=1000),
+               y=c(rnorm(1000,sd=.25),
+                   rnorm(1000,sd=5)))
+leveneTest(y~x,d)
+```
+
+```
+## Levene's Test for Homogeneity of Variance (center = median)
+##         Df F value    Pr(>F)    
+## group    1  1531.3 < 2.2e-16 ***
+##       1998                      
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
