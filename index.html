@@ -231,7 +231,7 @@ ggplot(d) +
   </hgroup>
   <article data-timings="">
     <ul>
-<li><p>To determine the first of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a <em>transformed</em> value of y</p></li>
+<li><p>To determine the fit of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a <em>transformed</em> value of y</p></li>
 <li><p>The transformation to be employed is specified in the link function</p></li>
 <li><p>The fitted value is computed by applying the reciprocal of the link function, in order to get back the original scale of measurement of the response value</p></li>
 </ul>
@@ -316,7 +316,7 @@ leveneTest(y~x,d)
 
 <pre><code>## Levene&#39;s Test for Homogeneity of Variance (center = median)
 ##         Df F value    Pr(&gt;F)    
-## group    1  1531.3 &lt; 2.2e-16 ***
+## group    1  1449.8 &lt; 2.2e-16 ***
 ##       1998                      
 ## ---
 ## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1

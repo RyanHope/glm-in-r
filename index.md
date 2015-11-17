@@ -135,7 +135,7 @@ where the xs are the values of the p different explanatory variables, and the $\
 
 ## Determining the fit of a GLM
 
-- To determine the first of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a *transformed* value of y
+- To determine the fit of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a *transformed* value of y
 
 - The transformation to be employed is specified in the link function
 
@@ -191,7 +191,7 @@ leveneTest(y~x,d)
 ```
 ## Levene's Test for Homogeneity of Variance (center = median)
 ##         Df F value    Pr(>F)    
-## group    1  1531.3 < 2.2e-16 ***
+## group    1  1449.8 < 2.2e-16 ***
 ##       1998                      
 ## ---
 ## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1

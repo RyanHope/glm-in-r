@@ -159,7 +159,7 @@ where the xs are the values of the p different explanatory variables, and the $\
 
 ## Determining the fit of a GLM
 
-- To determine the first of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a *transformed* value of y
+- To determine the fit of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a *transformed* value of y
 
 - The transformation to be employed is specified in the link function
 
