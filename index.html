@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Generalized Linear &amp; Additive Models</title>
+  <meta charset="utf-8">
+  <meta name="description" content="Generalized Linear &amp; Additive Models">
+  <meta name="author" content="Ryan Hope">
+  <meta name="generator" content="slidify" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/default.css" media="all" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/phone.css" 
+    media="only screen and (max-device-width: 480px)" >
+  <link rel="stylesheet" href="libraries/frameworks/io2012/css/slidify.css" >
+  <link rel="stylesheet" href="libraries/highlighters/highlight.js/css/tomorrow.css" />
+  <base target="_blank"> <!-- This amazingness opens all links in a new tab. -->  <link rel=stylesheet href="./assets/css/ribbons.css"></link>
+
+  
+  <!-- Grab CDN jQuery, fall back to local if offline -->
+  <script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-1.7.min.js"></script>
+  <script>window.jQuery || document.write('<script src="libraries/widgets/quiz/js/jquery.js"><\/script>')</script> 
+  <script data-main="libraries/frameworks/io2012/js/slides" 
+    src="libraries/frameworks/io2012/js/require-1.0.8.min.js">
+  </script>
+  
+  
+
+</head>
+<body style="opacity: 0">
+  <slides class="layout-widescreen">
+    
+    <!-- LOGO SLIDE -->
+      <slide class="nobackground">
+    <article class="flexbox vcenter">
+      <span>
+        <img width='300px' src="assets/img/rpi_logo.png">
+      </span>
+    </article>
+  </slide>
+    <slide class="title-slide segue nobackground">
+  <aside class="gdbar">
+    <img src="assets/img/cogworks_logo.png">
+  </aside>
+  <hgroup class="auto-fadein">
+    <h1>Generalized Linear &amp; Additive Models</h1>
+    <h2>http://ryanhope.github.com/glm-in-r</h2>
+    <p>Ryan Hope<br/>CogWorks Lab, Rensselaer Polytechnic Institute</p>
+  </hgroup>
+    <a href="https://github.com//plotting-in-r/zipball/gh-pages" class="example">
+     Download
+    </a>
+  <article></article>  
+</slide>
+    
+
+    <!-- SLIDES -->
+    <slide class="" id="slide-1" style="background:;">
+  <hgroup>
+    <h2>Generalized Linear Models (GLM)</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>GLM, pronounced <em>glim</em></li>
+<li>When to use
+
+<ul>
+<li>when the variance is not constant</li>
+<li>when the errors are not normally distributed</li>
+</ul></li>
+<li>Certain types of response variables violate these two standard assumptions</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-2" style="background:;">
+  <hgroup>
+    <h2>Constant variance assumption</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <pre><code class="r">d = ldply(0:10, function(m) {
+    d=rnorm(1000,mean=m)
+    data.frame(mean=mean(d),
+               variance=var(d))
+})
+ggplot(d) + 
+  geom_line(aes(x=mean,
+                y=variance)) +
+  coord_cartesian(ylim=c(0,2),
+                  xlim=c(0,10))
+</code></pre>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-3-1.png" alt="plot of chunk unnamed-chunk-3"> </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-3" style="background:;">
+  <hgroup>
+    <h2>Gamma variance</h2>
+  </hgroup>
+  <article data-timings="">
+    
+<div style='float:left;width:48%;'>
+  <pre><code class="r">d = ldply(0:10, function(m) {
+    ra = (m + sqrt( m^2 + 4*(m/3)^2 ) ) / 
+      ( 2 * (m/3)^2 )
+    sh = 1 + m * ra 
+    d=rgamma(1000,shape=sh,rate=ra)
+    data.frame(mean=mean(d),
+               variance=var(d))
+})
+ggplot(d) + 
+  geom_line(aes(x=mean,
+                y=variance)) +
+</code></pre>
+
+</div>
+<div style='float:right;width:48%;'>
+  <p><img src="assets/fig/unnamed-chunk-5-1.png" alt="plot of chunk unnamed-chunk-5"> </p>
+
+</div>
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-4" style="background:;">
+  <hgroup>
+    <h2>Properties of GLMs</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>the error structure</li>
+<li>the linear predictor</li>
+<li>the link function</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-5" style="background:;">
+  <hgroup>
+    <h2>Error structure</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>In the real world, analyses need to be done on data with non-normal errors, for example:</p>
+
+<ul>
+<li>errors that are strongly skewed</li>
+<li>errors that are kurtotic</li>
+<li>errors that are strictly bounded (as in proportions)</li>
+<li>errors that cannot lead to negative fitted values (as in counts)</li>
+</ul>
+
+<p>In the past, the only tools available to deal with these problems were transformations of the response variable or the adoption of non-parametric methods.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-6" style="background:;">
+  <hgroup>
+    <h2>Specifying the error structure</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>A GLM allows the specification of a variety of different error distributions:</p>
+
+<ul>
+<li>Poisson errors, useful with count data</li>
+<li>binomial errors, useful with data on proportions</li>
+<li>gamma errors, useful with data showing constant coefficient of variation</li>
+<li>exponential errors, useful with data on time to death (survival analysis)</li>
+</ul>
+
+<p>The <strong>error structure</strong> is defined by means of the <em>family</em> directive, used as part of the model formula. Examples:</p>
+
+<ul>
+<li><code>glm(y~z,family=poison)</code></li>
+<li><code>glm(y~z,family=binomial)</code></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-7" style="background:;">
+  <hgroup>
+    <h2>Linear predictor</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>The structure of the model relates each observed y value to a predicted value. The predicted value is obtained by tranformation of the value emerging from the <strong>linear predictor</strong>. The linear predictor, \(\eta\) (eta), is a linear sum of the effects of one or more explanatory variables, \(x_j\):</p>
+
+<p>\[{\eta}_i=\sum_{j=1}^{p} x_{ij}\beta_j\]</p>
+
+<p>where the xs are the values of the p different explanatory variables, and the $\beta$s are the (usually) unknown parameters to be estimated from the data. The right-hand side of the equation is called the <strong>linear structure</strong>.</p>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-8" style="background:;">
+  <hgroup>
+    <h2>Linear predictor examples</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Simple regression- linear predictor is the sum of two terms whose parameters are the intercept and slope</li>
+<li>One-way ANOVA w/ 4 treatments-  the linear predictor is the sum of the four terms leading to the estimation of the mean for each level of the factor
+
+<ul>
+<li>If there are covariates, they add one term each to the linear predictor (the slope of each relationship)</li>
+</ul></li>
+<li>Interaction terms in a factorial ANOVA add one or more parameters to the linear predictor, depending upon the degress of freedom for each factor (e.g. there would be three extra parameters for the interaction between a two-level factor and a four-level factor, because (2-1)x(4-1)=3)</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-9" style="background:;">
+  <hgroup>
+    <h2>Determining the fit of a GLM</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li><p>To determine the first of a given model, a GLM evaluate the linear predictor for each value of the response variable, then compares the predicted value with a <em>transformed</em> value of y</p></li>
+<li><p>The transformation to be employed is specified in the link function</p></li>
+<li><p>The fitted value is computed by applying the reciprocal of the link function, in order to get back the original scale of measurement of the response value</p></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-10" style="background:;">
+  <hgroup>
+    <h2>Link function</h2>
+  </hgroup>
+  <article data-timings="">
+    <p>When dealing with GLMs, grasping the relationship between the values of the response variable (as measured in the data and predicted by the model in fitted values) and the linear predictor can often be difficult.</p>
+
+<ul>
+<li>The link function relates the mean value of y to its linear predictor.
+\[\eta=g(\mu)\]</li>
+<li>The linear predictor, \(\eta\), emerges from the linear model as a sum of the terms for each of the p parameters
+
+<ul>
+<li>This is not a value of y (except in the special case of the <strong>identity link</strong>)</li>
+</ul></li>
+<li>The value of \(\eta\) is obtained by transforming the value of y by the link function
+
+<ul>
+<li>The predicted value of y is obtained by applying the inverse link function to \(\eta\)</li>
+</ul></li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-11" style="background:;">
+  <hgroup>
+    <h2>Picking a link function</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>Ensure that the fitted values stay within reasonable bounds</li>
+<li>The most appropriate link function is the one which produces the minimum residual deviance</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+<slide class="" id="slide-12" style="background:;">
+  <hgroup>
+    <h2>Deviance: measuring the goodness of fit of a GLM</h2>
+  </hgroup>
+  <article data-timings="">
+    <ul>
+<li>The fitted values produced by the modely are most likely not going to perfectly match your data</li>
+<li>The measure of discrepency in a GLM to assess the goodness of fit of the model to he data is called the deviance</li>
+<li>Deviance is defined as -2 times the difference in log-likelyhood between the current model and a saturdated model (i.e. a model that fits the data perfectly)</li>
+<li>Deviance is estimated in different ways for different families within glm</li>
+<li>Where there is grouping structure in the data leading to spatial or temporal pseudoreplication, you will need to use generalized mixed models (lmer) with the appropriate error family</li>
+</ul>
+
+  </article>
+  <!-- Presenter Notes -->
+</slide>
+
+    <slide class="backdrop"></slide>
+  </slides>
+  <div class="pagination pagination-small" id='io2012-ptoc' style="display:none;">
+    <ul>
+      <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=1 title='Generalized Linear Models (GLM)'>
+         1
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=2 title='Constant variance assumption'>
+         2
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=3 title='Gamma variance'>
+         3
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=4 title='Properties of GLMs'>
+         4
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=5 title='Error structure'>
+         5
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=6 title='Specifying the error structure'>
+         6
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=7 title='Linear predictor'>
+         7
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=8 title='Linear predictor examples'>
+         8
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=9 title='Determining the fit of a GLM'>
+         9
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=10 title='Link function'>
+         10
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=11 title='Picking a link function'>
+         11
+      </a>
+    </li>
+    <li>
+      <a href="#" target="_self" rel='tooltip' 
+        data-slide=12 title='Deviance: measuring the goodness of fit of a GLM'>
+         12
+      </a>
+    </li>
+  </ul>
+  </div>  <!--[if IE]>
+    <script 
+      src="http://ajax.googleapis.com/ajax/libs/chrome-frame/1/CFInstall.min.js">  
+    </script>
+    <script>CFInstall.check({mode: 'overlay'});</script>
+  <![endif]-->
+</body>
+  <!-- Load Javascripts for Widgets -->
+  
+  <!-- MathJax: Fall back to local if CDN offline but local image fonts are not supported (saves >100MB) -->
+  <script type="text/x-mathjax-config">
+    MathJax.Hub.Config({
+      tex2jax: {
+        inlineMath: [['$','$'], ['\\(','\\)']],
+        processEscapes: true
+      }
+    });
+  </script>
+  <script type="text/javascript" src="http://cdn.mathjax.org/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+  <!-- <script src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+  </script> -->
+  <script>window.MathJax || document.write('<script type="text/x-mathjax-config">MathJax.Hub.Config({"HTML-CSS":{imageFont:null}});<\/script><script src="libraries/widgets/mathjax/MathJax.js?config=TeX-AMS-MML_HTMLorMML"><\/script>')
+</script>
+<!-- LOAD HIGHLIGHTER JS FILES -->
+  <script src="libraries/highlighters/highlight.js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  <!-- DONE LOADING HIGHLIGHTER JS FILES -->
+   
+  </html>
